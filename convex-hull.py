@@ -2,10 +2,10 @@
 import math
 from functools import cmp_to_key
 
-# points = [(1, 0.5), (2, 1), (3.5, 1.5), (5, 0.5),
-#     (2, 2.5), (1, 3.5), (4, 4), (5, 4.5), (1, 5), (4, 0.5)]
-
-input_points = [(1, 0.5), (4, 0.5), (4, 0.5), (2, 1), (4, 2), (2, 1), (1, 5), (2, 10), (4, 4), (8, 8)]
+# input_points = [(1, 1), (2, 2), (3, 3), (1, 3)]
+input_points = [(4.4, 14), (6.7, 15.25), (6.9, 12.8), (2.1, 11.1), (9.5, 14.9), 
+ (13.2, 11.9), (10.3, 12.3), (6.8, 9.5), (3.3, 7.7), (0.6, 5.1), (5.3, 2.4), 
+ (8.45, 4.7), (11.5, 9.6), (13.8, 7.3), (12.9, 3.1), (11, 1.1)]
 
 def graham_scan(input_points):
     """
@@ -21,11 +21,9 @@ def graham_scan(input_points):
     for i in range(0, len(points)):
         points_p_0_added.append([points[i], p_0])
 
-    """
-    Sorts remaining points by polar angle between the vector (of
-    the reference point to the current point) and the unity vector in the
-    direction of the x axis.
-    """
+    # Sorts remaining points by polar angle between the vector (of
+    # the reference point to the current point) and the unity vector in the
+    # direction of the x axis.
     points_p_0_added_sorted = sorted(points_p_0_added, key=cmp_to_key(compare))
     
     points = []
@@ -33,10 +31,21 @@ def graham_scan(input_points):
     for i in range(0, len(points_p_0_added_sorted)):
         points.append(points_p_0_added_sorted[i][0])
 
-    print('p0 is {}'.format(p_0))
-    print('Sorted points by polar angle: \n{}'.format(points))
+    # print('p0 is {}'.format(p_0))
+    # print('Sorted points by polar angle: \n{}'.format(points))
     points = remove_duplicates(p_0, points)
-    print('Points with duplicates removed: {}'.format(points))
+    # print('Points with duplicates removed: {}'.format(points))
+    
+    # Insert p_0 at first position of the list of points.
+    points.insert(0, p_0)
+
+    print('Computation of convex hull starts now:')
+    convex_hull = compute_convex_hull(points)
+    print('Convex hull returned is: {}'.format(convex_hull))
+
+    # Return the convex hull.
+    return convex_hull
+
 
 def find_p_0(points):
     """
@@ -135,7 +144,7 @@ def remove_duplicates(p_0, points):
             to_delete += points_to_delete(p_0, points, tmp)
         tmp = []
 
-    print('Points to be deleted: {}'.format(to_delete))
+    # print('Points to be deleted: {}'.format(to_delete))
     result_points = points.copy()
 
     # Delete points that should be deleted.
@@ -186,5 +195,59 @@ def points_to_delete(p_0, points, tmp):
     # print('Points to be deleted: {}'.format(to_delete))
     return to_delete
 
-graham_scan(input_points)
+def compute_convex_hull(points):
+    """
+    Computes the convex hull based on points
+    that are already sorted as expected.
+    """
+    if len(points) < 3:
+        return "There is no convex hull for this list of points."
+    
+    stack = []
+    stack.append(points[0])
+    stack.append(points[1])
+    stack.append(points[2])
+
+    # print('Points are: {}'.format(points))
+    # print('Initial stack is: {}'.format(stack))
+    # Process remaining points.
+    for i in range(3, len(points)):
+        # print('Current stack is: {}'.format(stack))
+        is_orientation_counterclockwise = False
+
+        a = stack[len(stack) - 2]
+        b = stack[len(stack) -1]
+        # Current point looked at.
+        c  = points[i]
+
+        # If orientation is counterclockwise.
+        if orientation(a, b, c) > 0:
+            is_orientation_counterclockwise = True
+        
+        while not is_orientation_counterclockwise:
+            stack.pop()
+            a = stack[len(stack) - 2]
+            b = stack[len(stack) -1]
+
+            # If orientation is counterclockwise.
+            if orientation(a, b, c) > 0:
+                is_orientation_counterclockwise = True
+
+        # At this point the orientation of the points
+        # is counterclockwise.
+        stack.append(points[i])
+
+    # Return the convex hull.
+    return stack
+
+def orientation(a, b, c):
+    """
+    Computes the orientation of three points.
+    """
+    result = (((b[0] - a[0]) * (c[1] - a[1])) - ((c[0] - a[0]) * (b[1] - a[1])))
+    return result    
+
+if __name__ == '__main__':
+    graham_scan(input_points)
+
 
