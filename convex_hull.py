@@ -2,12 +2,7 @@
 import math
 from functools import cmp_to_key
 
-points = [(1, 1), (2, 2), (3, 3), (1, 3)]
 p_0 = None
-
-# points = [(4.4, 14), (6.7, 15.25), (6.9, 12.8), (2.1, 11.1), (9.5, 14.9), 
-# (13.2, 11.9), (10.3, 12.3), (6.8, 9.5), (3.3, 7.7), (0.6, 5.1), (5.3, 2.4), 
-# (8.45, 4.7), (11.5, 9.6), (13.8, 7.3), (12.9, 3.1), (11, 1.1)]
 
 def graham_scan(input_points):
     """
@@ -229,7 +224,4 @@ def orientation(a, b, c):
     # Otherwise the orientation is clockwise.
     result = (((b[0] - a[0]) * (c[1] - a[1])) - ((c[0] - a[0]) * (b[1] - a[1])))
     return result    
-
-if __name__ == '__main__':
-    print(graham_scan(points))
 
